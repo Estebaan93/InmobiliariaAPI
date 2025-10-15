@@ -50,7 +50,8 @@ namespace InmobiliariaAPI.Repositories
     {
       var existente = _context.Propietarios.Find(propietario.IdPropietario);
       if (existente == null) return false;
-
+      
+      existente.Dni = propietario.Dni;
       existente.Nombre = propietario.Nombre;
       existente.Apellido = propietario.Apellido;
       existente.Telefono = propietario.Telefono;
