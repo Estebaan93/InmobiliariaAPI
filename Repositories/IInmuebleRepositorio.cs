@@ -5,7 +5,7 @@ namespace InmobiliariaAPI.Repositories
 {
   public interface IInmuebleRepositorio
   {
-    IEnumerable<Inmueble> ObtenerPorPropietario(int idPropietario);
+    List<Inmueble> ObtenerPorPropietario(int idPropietario);
     Inmueble? ObtenerPorId(int id);
   }
 }

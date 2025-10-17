@@ -40,6 +40,8 @@ builder.Services.AddDbContext<InmobiliariaContext>(options =>
 
 //  INYECCION DE DEPENDENCIAS
 builder.Services.AddScoped<IPropietarioRepositorio, PropietarioRepositorio>();
+builder.Services.AddScoped<IInmuebleRepositorio, InmuebleRepositorio>();
+
 builder.Services.AddScoped<JwtService>();
 
 

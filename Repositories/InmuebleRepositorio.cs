@@ -14,7 +14,7 @@ namespace InmobiliariaAPI.Repositories
       _context = context;
     }
 
-    public IEnumerable<Inmueble> ObtenerPorPropietario(int idPropietario)
+    public List<Inmueble> ObtenerPorPropietario(int idPropietario)
     {
       return _context.Inmuebles
         .Include(i => i.Direccion)
