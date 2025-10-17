@@ -1,3 +1,4 @@
+//Repositories/IPagoRepositorio.cs
 using InmobiliariaAPI.Models;
 
 namespace InmobiliariaAPI.Repositories

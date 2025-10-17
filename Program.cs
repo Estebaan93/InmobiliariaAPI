@@ -15,9 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 // CORS
 builder.Services.AddCors(options =>
 {
-  options.AddPolicy("AllowAll",
-      policy => policy
-          .AllowAnyOrigin()   // Permite cualquier dominio
+  options.AddPolicy("AllowAll", policy =>
+  policy.AllowAnyOrigin()   // Permite cualquier dominio
           .AllowAnyMethod()   // Permite GET, POST, PUT, DELETE, etc.
           .AllowAnyHeader()); // Permite cualquier encabezado
 });

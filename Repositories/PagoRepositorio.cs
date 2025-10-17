@@ -1,3 +1,4 @@
+//Repositories/PagoRepositorio.cs
 using InmobiliariaAPI.Data;
 using InmobiliariaAPI.Models;
 using Microsoft.EntityFrameworkCore;
