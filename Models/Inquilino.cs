@@ -12,7 +12,7 @@ namespace InmobiliariaAPI.Models
     public int IdInquilino { get; set; }
     [Required]
 
-    public int Dni { get; set; }
+    public string Dni { get; set; }
 
     [Required]
     public string Apellido { get; set; } = string.Empty;

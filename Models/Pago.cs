@@ -1,6 +1,7 @@
 //Model/Pago.cs
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace InmobiliariaAPI.Models
 {
@@ -19,6 +20,7 @@ namespace InmobiliariaAPI.Models
     public string Detalle { get; set; } = string.Empty;
     public bool Estado { get; set; }
 
+    [JsonIgnore]
     public Contrato? Contrato { get; set; }
   }
 }

@@ -24,9 +24,10 @@ namespace InmobiliariaAPI.Models
     public bool Estado { get; set; }
 
     public Inquilino? Inquilino { get; set; }
-    public Inmueble? Inmueble { get; set; }
 
     [JsonIgnore]
+    public Inmueble? Inmueble { get; set; }
+
     public ICollection<Pago>? Pagos { get; set; }
   }
 }

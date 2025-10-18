@@ -14,7 +14,8 @@ namespace InmobiliariaAPI.Repositories
       _context = context;
     }
 
-    public List<Inmueble> ObtenerPorPropietario(int idPropietario)
+    //Todos los inmuebles del propietario
+    public List<Inmueble> ObtenerTodosPorPropietario(int idPropietario)
     {
       return _context.Inmuebles
         .Include(i => i.Direccion)
@@ -29,8 +30,28 @@ namespace InmobiliariaAPI.Repositories
       return _context.Inmuebles
         .Include(i => i.Direccion)
         .Include(i => i.Tipo)
-        .Include(i => i.Contratos)
+        .Include(i => i.Contratos!)
+          .ThenInclude(c => c.Inquilino)
+        .Include(i => i.Contratos!)
+          .ThenInclude(c => c.Pagos)
         .FirstOrDefault(i => i.IdInmueble == id);
     }
+
+    
+    //Solo activos con contratos, pago y datos del inquilino
+    public List<Inmueble> ObtenerActivosPorPropietario (int idPropietario)
+    {
+      return _context.Inmuebles
+        .Include(i => i.Direccion)
+        .Include(i => i.Tipo)
+        .Include(i => i.Contratos!)
+          .ThenInclude(c => c.Inquilino)
+        .Include(i => i.Contratos!)
+          .ThenInclude(c => c.Pagos)
+        .Where(i => i.IdPropietario == idPropietario && i.Estado)
+        .AsNoTracking()
+        .ToList();
+    }
+
   }
 }
