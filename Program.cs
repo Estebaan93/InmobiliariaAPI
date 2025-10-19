@@ -79,6 +79,10 @@ if (app.Environment.IsDevelopment())
 // MIDDLEWARES
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+
+//Habilitamos carga de img desde /wwwroot
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

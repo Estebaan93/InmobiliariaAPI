@@ -9,5 +9,8 @@ namespace InmobiliariaAPI.Repositories
     List<Inmueble> ObtenerTodosPorPropietario(int idPropietario);
     List<InmuebleActivoDTO> ObtenerActivosPorPropietario(int idPropietario);
     Inmueble? ObtenerPorId(int id);
+    Inmueble? CrearInmueble(Inmueble inmueble);
+
+
   }
 }

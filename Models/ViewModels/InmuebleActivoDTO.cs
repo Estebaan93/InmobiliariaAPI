@@ -1,3 +1,4 @@
+//Models/ViewModels/InmuebleActivoDTO
 namespace InmobiliariaAPI.Models.ViewModels
 {
   public class InmuebleActivoDTO

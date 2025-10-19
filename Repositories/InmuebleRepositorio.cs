@@ -50,9 +50,9 @@ namespace InmobiliariaAPI.Repositories
         .Include(c => c.Inmueble!)
           .ThenInclude(i => i.Tipo)
         .Include(c => c.Inquilino)
-        .Where(c => c.Estado 
-                    && c.FechaInicio <= hoy 
-                    && c.FechaFin >= hoy 
+        .Where(c => c.Estado
+                    && c.FechaInicio <= hoy
+                    && c.FechaFin >= hoy
                     && c.Inmueble!.IdPropietario == idPropietario)
         .Select(c => new InmuebleActivoDTO
         {
@@ -61,7 +61,7 @@ namespace InmobiliariaAPI.Repositories
           Calle = c.Inmueble!.Direccion!.Calle,
           Ciudad = c.Inmueble!.Direccion!.Ciudad,
           Tipo = c.Inmueble!.Tipo!.Observacion,
-          UrlImagen= c.Inmueble!.UrlImagen,
+          UrlImagen = c.Inmueble!.UrlImagen,
           InquilinoNombre = c.Inquilino!.Nombre,
           InquilinoApellido = c.Inquilino!.Apellido,
           FechaInicio = c.FechaInicio,
@@ -72,6 +72,25 @@ namespace InmobiliariaAPI.Repositories
         .ToList();
     }
 
+
+    //Crear inmueble
+    public Inmueble? CrearInmueble(Inmueble inmueble)
+    {
+      try
+      {
+        _context.Inmuebles.Add(inmueble);
+        _context.SaveChanges();
+        return inmueble;   
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+
+
+      
+    }
+    
     
 
   }
