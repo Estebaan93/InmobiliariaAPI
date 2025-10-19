@@ -42,7 +42,7 @@ namespace InmobiliariaAPI.Controllers
       var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
       var inmuebles = _repo.ObtenerActivosPorPropietario(idPropietario);
 
-      if(inmuebles==null || inmuebles.Count == 0)
+      if (inmuebles == null || inmuebles.Count == 0)
       {
         return NotFound("No se encontraron inmuebles activos para este propietario");
       }
@@ -50,9 +50,9 @@ namespace InmobiliariaAPI.Controllers
       return Ok(inmuebles);
     }
 
+  
+   
     
   }
-
-
 
 }

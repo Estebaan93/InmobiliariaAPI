@@ -13,7 +13,7 @@ services:
     ports:
       - "8080:80"
     environment:
-      PMA_HOST: mysql-db
+      PMA_HOST: mysql-db # Nombre host
       PMA_PORT: 3306    # Puerto del servicio de mysql
     depends_on:
       - mysql-db  # Se asegura que Mysql se levante antes que phpMyAdmin

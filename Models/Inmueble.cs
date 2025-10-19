@@ -32,7 +32,7 @@ namespace InmobiliariaAPI.Models
     public string UrlImagen { get; set; } = string.Empty;
     public bool Estado { get; set; }
 
-    [JsonIgnore] public Propietario? Propietario { get; set; }
+    public Propietario? Propietario { get; set; }
     public Direccion? Direccion { get; set; }
     public Tipo? Tipo { get; set; }
 
