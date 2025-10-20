@@ -39,7 +39,7 @@ namespace InmobiliariaAPI.Repositories
     }
 
 
-    // 🔹 DTO: inmuebles con contratos vigentes e inquilino
+    // DTO: inmuebles con contratos vigentes e inquilino
     public List<InmuebleActivoDTO> ObtenerActivosPorPropietario(int idPropietario)
     {
       var hoy = DateTime.Today;
@@ -80,7 +80,7 @@ namespace InmobiliariaAPI.Repositories
       {
         _context.Inmuebles.Add(inmueble);
         _context.SaveChanges();
-        return inmueble;   
+        return inmueble;
       }
       catch (Exception)
       {
@@ -88,10 +88,8 @@ namespace InmobiliariaAPI.Repositories
       }
 
 
-      
+
     }
-    
-    
 
   }
 }

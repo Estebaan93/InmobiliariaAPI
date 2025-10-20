@@ -54,10 +54,10 @@ namespace InmobiliariaAPI.Controllers
     }
 
 
-    //POST: api/Inmuebles/nuevo
+    //POST: api/Inmuebles/nuevo s
     [HttpPost("nuevo")]
     [RequestSizeLimit(10_000_000)] //Hasta 10 MB
-    public IActionResult CrearNuevoInmueble([FromBody] InmuebleCrearDTO dto)
+    public IActionResult CrearNuevoInmueble([FromForm] InmuebleCrearDTO dto)
     {
       if (!ModelState.IsValid)
         return BadRequest(ModelState);

@@ -6,6 +6,13 @@ namespace InmobiliariaAPI.Models.ViewModels
 {
   public class InmuebleCrearDTO
   {
+    //Campos de direccion
+    [Required]
+    public string Calle { get; set; } = string.Empty;
+
+    [Required]
+    public string Altura { get; set;}= string.Empty;
+
     [Required]
     public int IdDireccion { get; set; }
 

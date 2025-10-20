@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-
 // CORS
 builder.Services.AddCors(options =>
 {
