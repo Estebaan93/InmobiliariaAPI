@@ -11,7 +11,7 @@ namespace InmobiliariaAPI.Models.ViewModels
     public string Calle { get; set; } = string.Empty;
 
     [Required]
-    public string Altura { get; set;}= string.Empty;
+    public string Altura { get; set; }= string.Empty;
 
     [Required]
     public int IdDireccion { get; set; }
