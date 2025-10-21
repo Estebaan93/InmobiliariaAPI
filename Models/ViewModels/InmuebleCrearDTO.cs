@@ -11,11 +11,19 @@ namespace InmobiliariaAPI.Models.ViewModels
     public string Calle { get; set; } = string.Empty;
 
     [Required]
-    public string Altura { get; set; }= string.Empty;
+    public int Altura{ get; set; }
 
     [Required]
-    public int IdDireccion { get; set; }
+    public string Cp { get; set; }= string.Empty;
 
+    [Required]
+    public string Ciudad { get; set; }= string.Empty;
+
+    [Required]
+    public string Coordenadas { get; set; }= string.Empty;
+
+
+    //Campos de inmuebles
     [Required]
     public int IdTipo { get; set; }
 

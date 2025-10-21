@@ -6,6 +6,7 @@ using InmobiliariaAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using InmobiliariaAPI.Models;
 using InmobiliariaAPI.Models.ViewModels;
+using InmobiliariaAPI.Data;
 
 namespace InmobiliariaAPI.Controllers
 {
@@ -16,10 +17,12 @@ namespace InmobiliariaAPI.Controllers
   {
     private readonly IInmuebleRepositorio _repo;
     private readonly IWebHostEnvironment _env;
-    public InmueblesController(IInmuebleRepositorio repo, IWebHostEnvironment env)
+    private readonly InmobiliariaContext _context;  //inyecta el context
+    public InmueblesController(IInmuebleRepositorio repo, IWebHostEnvironment env, InmobiliariaContext context)
     {
       _repo = repo;
       _env = env;
+      _context= context;
     }
 
     //GET: api/Inmuebles/obtenerInmueble (obtiene inmuebles del propietario)
@@ -64,6 +67,14 @@ namespace InmobiliariaAPI.Controllers
 
       var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
+      //crear y guardar la direccion
+      var nuevaDireccion= new Direccion{
+        Calle= dto.Calle,
+        Altura= dto.Altura,
+        Cp= dto.Cp,
+        Ciudad= dto.Ciudad,
+        Coordenadas= dto.Coordenadas
+      };
 
       // Guardar imagen en wwwroot/imagenes_inmuebles
       string carpeta = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "imagenes_inmuebles");
@@ -85,7 +96,7 @@ namespace InmobiliariaAPI.Controllers
       var inmueble = new Inmueble
       {
         IdPropietario = idPropietario,
-        IdDireccion = dto.IdDireccion,
+        IdDireccion = nuevaDireccion.IdDireccion,
         IdTipo = dto.IdTipo,
         Metros2 = dto.Metros2,
         CantidadAmbientes = dto.CantidadAmbientes,
