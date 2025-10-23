@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,10 +46,11 @@ builder.Services.AddScoped<JwtService>();
 
 
 //  CONFIGURACION JWT
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
-  var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+
   options.TokenValidationParameters = new TokenValidationParameters
   {
     ValidateIssuer = true,
@@ -59,6 +61,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     ValidAudience = builder.Configuration["Jwt:Audience"],
     IssuerSigningKey = new SymmetricSecurityKey(key)
   };
+
+  //Evento para invalidar token al cambiar la contraseña
+  options.Events = new JwtBearerEvents
+  {
+    OnTokenValidated = async context =>
+    {
+      try
+      {
+        // Obtenemos el contexto de BD y datos del token
+        var db = context.HttpContext.RequestServices.GetRequiredService<InmobiliariaContext>();
+        var userId = int.Parse(context.Principal.FindFirstValue(ClaimTypes.NameIdentifier));
+        var lastChangeClaim = context.Principal.FindFirst("LastPasswordChange")?.Value;
+
+        if (DateTime.TryParse(lastChangeClaim, out var tokenIssuedTime))
+        {
+          var user = await db.Propietarios.FindAsync(userId);
+          // Si el usuario cambió la contraseña después de emitirse el token → invalida
+          if (user != null && user.UltimoCambioPassword > tokenIssuedTime)
+          {
+            context.Fail("Token expirado por cambio de contraseña.");
+          }
+        }
+      }
+      catch
+      {
+        // Si algo falla en la validación personalizada, también invalida por seguridad
+        context.Fail("Error al validar el token.");
+      }
+    }
+  };
+
 });
 
 builder.Services.AddAuthorization();

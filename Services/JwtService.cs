@@ -22,7 +22,8 @@ namespace InmobiliariaAPI.Services
       {
                 new Claim(ClaimTypes.NameIdentifier, prop.IdPropietario.ToString()),
                 new Claim(ClaimTypes.Email, prop.Correo),
-                new Claim(ClaimTypes.Name, $"{prop.Nombre} {prop.Apellido}")
+                new Claim(ClaimTypes.Name, $"{prop.Nombre} {prop.Apellido}"),
+                new Claim("LastPasswordChange", prop.UltimoCambioPassword.ToString("O"))
             };
 
       var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -32,7 +33,7 @@ namespace InmobiliariaAPI.Services
           issuer: _config["Jwt:Issuer"],
           audience: _config["Jwt:Audience"],
           claims: claims,
-          expires: DateTime.UtcNow.AddHours(3),
+          expires: DateTime.UtcNow.AddHours(1),
           signingCredentials: creds
       );
 

@@ -44,16 +44,46 @@ namespace InmobiliariaAPI.Controllers
       return propietario == null ? NotFound() : Ok(propietario);
     }
 
+
+
     [AllowAnonymous]
     [HttpPost("registro")]
     public IActionResult Registrar([FromBody] Propietario propietario)
     {
+      //Valiar correo
+      if (string.IsNullOrWhiteSpace(propietario.Correo))
+        return BadRequest("Debe ingresa un correo valido");
+
       if (string.IsNullOrWhiteSpace(propietario.Password))
         return BadRequest("Debe ingresar una contraseña.");
 
-      var creado = _repo.Registrar(propietario);
-      return Ok(new { mensaje = "Propietario registrado correctamente", creado });
+      //Validar si existe el correo
+      var existente = _repo.BuscarPorCorreo(propietario.Correo);
+      if (existente != null)
+        return Conflict("Ya existe el correo electronico");
+
+      //Crea el prop nuevo
+      var nuevo = _repo.Registrar(propietario);
+
+      var token = _jwt.GenerarToken(nuevo);
+
+      return Ok(new
+      {
+        mensaje = "Propietario registrado correctamente",
+        propietario = new
+        {
+          nuevo.IdPropietario,
+          nuevo.Nombre,
+          nuevo.Apellido,
+          nuevo.Correo,
+          nuevo.Estado,
+          nuevo.UltimoCambioPassword
+        },
+        token
+      });
     }
+
+
 
     [HttpPut("editar")]
     [Authorize]
@@ -70,9 +100,23 @@ namespace InmobiliariaAPI.Controllers
     [Authorize]
     public IActionResult CambiarPassword([FromBody] CambioPasswordRequest req)
     {
-      var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-      var ok = _repo.CambiarPassword(id, req.ClaveActual, req.ClaveNueva);
-      return ok ? Ok("Contraseña actualizada correctamente") : BadRequest("Contraseña actual incorrecta");
+    var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+    var propietario = _repo.ObtenerPorId(id);
+    if (propietario == null)
+        return NotFound("Propietario no encontrado");
+
+    var ok = _repo.CambiarPassword(id, req.ClaveActual, req.ClaveNueva);
+    if (!ok)
+        return BadRequest("Contraseña actual incorrecta");
+
+    //Generamos un nuevo token para reemplazar el anterior
+    var nuevoToken = _jwt.GenerarToken(propietario);
+
+    return Ok(new 
+    { 
+        mensaje = "Contraseña actualizada correctamente", 
+        token = nuevoToken 
+    });
     }
   }
 

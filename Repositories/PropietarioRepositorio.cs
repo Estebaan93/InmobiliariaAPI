@@ -40,6 +40,8 @@ namespace InmobiliariaAPI.Repositories
     public Propietario Registrar(Propietario propietario)
     {
       propietario.Password = BCrypt.Net.BCrypt.HashPassword(propietario.Password);
+      propietario.Estado = true;
+      propietario.UltimoCambioPassword = DateTime.UtcNow; //fecha de inicio pass
       _context.Propietarios.Add(propietario);
       _context.SaveChanges();
       return propietario;
@@ -56,7 +58,7 @@ namespace InmobiliariaAPI.Repositories
       existente.Apellido = propietario.Apellido;
       existente.Telefono = propietario.Telefono;
       existente.Correo = propietario.Correo;
-      existente.Estado = propietario.Estado;
+      //existente.Estado = propietario.Estado;
 
       _context.Update(existente);
       return _context.SaveChanges() > 0;
@@ -71,9 +73,20 @@ namespace InmobiliariaAPI.Repositories
         return false;
 
       propietario.Password = BCrypt.Net.BCrypt.HashPassword(claveNueva);
+      propietario.UltimoCambioPassword = DateTime.UtcNow; //actualizamos la fecha
       _context.Update(propietario);
       return _context.SaveChanges() > 0;
     }
+
+
+    public Propietario? BuscarPorCorreo(string correo)
+    {
+      return _context.Propietarios
+            .AsNoTracking()
+            .FirstOrDefault(p => p.Correo == correo);
+    }
+
+    
 
 
   }
