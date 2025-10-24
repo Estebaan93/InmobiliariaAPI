@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 12-10-2025 a las 04:24:15
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Host: mysql-db:3306
+-- Generation Time: Oct 24, 2025 at 03:08 PM
+-- Server version: 9.4.0
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,30 +18,30 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `inmobiliariaapi`
+-- Database: `inmobiliariaapi`
 --
-CREATE DATABASE IF NOT EXISTS `inmobiliariaapi` DEFAULT CHARACTER SET utf8 COLLATE utf8_spanish2_ci;
+CREATE DATABASE IF NOT EXISTS `inmobiliariaapi` DEFAULT CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish2_ci;
 USE `inmobiliariaapi`;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `auditoria`
+-- Table structure for table `auditoria`
 --
 
 CREATE TABLE `auditoria` (
-  `idAuditoria` int(11) NOT NULL,
-  `idEntidad` int(11) NOT NULL,
-  `tipoEntidad` enum('contrato','pago') NOT NULL,
-  `accion` enum('crear','terminar','anular') NOT NULL,
-  `idUsuario` int(11) NOT NULL,
-  `observacion` text DEFAULT NULL,
-  `fechaYHora` datetime NOT NULL DEFAULT current_timestamp(),
-  `estado` tinyint(1) DEFAULT 1
+  `idAuditoria` int NOT NULL,
+  `idEntidad` int NOT NULL,
+  `tipoEntidad` enum('contrato','pago') COLLATE utf8mb4_general_ci NOT NULL,
+  `accion` enum('crear','terminar','anular') COLLATE utf8mb4_general_ci NOT NULL,
+  `idUsuario` int NOT NULL,
+  `observacion` text COLLATE utf8mb4_general_ci,
+  `fechaYHora` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `estado` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `auditoria`
+-- Dumping data for table `auditoria`
 --
 
 INSERT INTO `auditoria` (`idAuditoria`, `idEntidad`, `tipoEntidad`, `accion`, `idUsuario`, `observacion`, `fechaYHora`, `estado`) VALUES
@@ -78,13 +78,13 @@ INSERT INTO `auditoria` (`idAuditoria`, `idEntidad`, `tipoEntidad`, `accion`, `i
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `contrato`
+-- Table structure for table `contrato`
 --
 
 CREATE TABLE `contrato` (
-  `idContrato` int(11) NOT NULL,
-  `idInquilino` int(11) NOT NULL,
-  `idInmueble` int(11) NOT NULL,
+  `idContrato` int NOT NULL,
+  `idInquilino` int NOT NULL,
+  `idInmueble` int NOT NULL,
   `monto` decimal(10,0) NOT NULL,
   `fechaInicio` date NOT NULL,
   `fechaFin` date NOT NULL,
@@ -93,38 +93,39 @@ CREATE TABLE `contrato` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `contrato`
+-- Dumping data for table `contrato`
 --
 
 INSERT INTO `contrato` (`idContrato`, `idInquilino`, `idInmueble`, `monto`, `fechaInicio`, `fechaFin`, `FechaAnulacion`, `estado`) VALUES
-(14, 1, 5, 1300000, '2025-09-26', '2026-04-27', '2025-09-26 00:00:00', 0),
-(15, 1, 7, 150000, '2025-09-21', '2025-12-23', '2025-09-21 00:00:00', 0),
+(14, 1, 5, 1300000, '2025-09-26', '2026-04-27', '2025-09-26 00:00:00', 1),
+(15, 1, 7, 150000, '2025-09-21', '2025-12-23', '2025-09-21 00:00:00', 1),
 (16, 5, 6, 700000, '2025-09-21', '2025-12-25', '2025-09-26 00:00:00', 0),
-(17, 1, 5, 250000, '2025-09-21', '2025-10-29', '2025-09-24 00:00:00', 0),
+(17, 1, 5, 250000, '2025-09-21', '2025-10-29', '2025-09-24 00:00:00', 1),
 (18, 1, 2, 600000, '2025-09-22', '2025-10-22', '2025-09-26 00:00:00', 0),
 (19, 8, 7, 150000, '2025-09-22', '2025-11-22', '2025-09-26 00:00:00', 0),
 (20, 1, 1, 480000, '2025-09-23', '2025-11-23', '2025-09-26 00:00:00', 0),
 (21, 7, 4, 200000, '2025-09-23', '2025-10-29', '2025-09-23 00:00:00', 0),
 (22, 1, 4, 200000, '2025-09-24', '2025-11-24', '2025-09-26 00:00:00', 0),
-(23, 1, 8, 1200000, '2025-09-24', '2025-09-25', NULL, 1);
+(23, 1, 8, 1200000, '2025-09-24', '2025-09-25', NULL, 1),
+(24, 10, 8, 1200000, '2025-10-01', '2026-04-01', NULL, 1);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `direccion`
+-- Table structure for table `direccion`
 --
 
 CREATE TABLE `direccion` (
-  `idDireccion` int(11) NOT NULL,
-  `calle` varchar(200) NOT NULL,
-  `altura` int(11) NOT NULL,
-  `cp` varchar(12) NOT NULL,
-  `ciudad` varchar(100) NOT NULL,
-  `coordenadas` varchar(250) NOT NULL
+  `idDireccion` int NOT NULL,
+  `calle` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
+  `altura` int NOT NULL,
+  `cp` varchar(12) COLLATE utf8mb4_general_ci NOT NULL,
+  `ciudad` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `coordenadas` varchar(250) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `direccion`
+-- Dumping data for table `direccion`
 --
 
 INSERT INTO `direccion` (`idDireccion`, `calle`, `altura`, `cp`, `ciudad`, `coordenadas`) VALUES
@@ -144,27 +145,27 @@ INSERT INTO `direccion` (`idDireccion`, `calle`, `altura`, `cp`, `ciudad`, `coor
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `inmueble`
+-- Table structure for table `inmueble`
 --
 
 CREATE TABLE `inmueble` (
-  `idInmueble` int(11) NOT NULL,
-  `idPropietario` int(11) NOT NULL,
-  `idDireccion` int(11) NOT NULL,
-  `idTipo` int(11) NOT NULL,
-  `metros2` varchar(100) NOT NULL,
-  `cantidadAmbientes` int(11) NOT NULL,
+  `idInmueble` int NOT NULL,
+  `idPropietario` int NOT NULL,
+  `idDireccion` int NOT NULL,
+  `idTipo` int NOT NULL,
+  `metros2` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `cantidadAmbientes` int NOT NULL,
   `precio` decimal(10,0) NOT NULL,
-  `descripcion` varchar(300) NOT NULL,
-  `cochera` tinyint(4) NOT NULL,
-  `piscina` tinyint(4) NOT NULL,
-  `mascotas` tinyint(4) NOT NULL,
-  `urlImagen` varchar(400) NOT NULL,
-  `estado` tinyint(2) NOT NULL DEFAULT 1
+  `descripcion` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
+  `cochera` tinyint NOT NULL,
+  `piscina` tinyint NOT NULL,
+  `mascotas` tinyint NOT NULL,
+  `urlImagen` varchar(400) COLLATE utf8mb4_general_ci NOT NULL,
+  `estado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `inmueble`
+-- Dumping data for table `inmueble`
 --
 
 INSERT INTO `inmueble` (`idInmueble`, `idPropietario`, `idDireccion`, `idTipo`, `metros2`, `cantidadAmbientes`, `precio`, `descripcion`, `cochera`, `piscina`, `mascotas`, `urlImagen`, `estado`) VALUES
@@ -182,21 +183,21 @@ INSERT INTO `inmueble` (`idInmueble`, `idPropietario`, `idDireccion`, `idTipo`, 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `inquilino`
+-- Table structure for table `inquilino`
 --
 
 CREATE TABLE `inquilino` (
-  `idInquilino` int(11) NOT NULL,
-  `dni` varchar(10) NOT NULL,
-  `apellido` varchar(100) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `telefono` varchar(60) NOT NULL,
-  `correo` varchar(150) NOT NULL,
-  `estado` tinyint(1) NOT NULL DEFAULT 1
+  `idInquilino` int NOT NULL,
+  `dni` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `apellido` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `telefono` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  `correo` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
+  `estado` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `inquilino`
+-- Dumping data for table `inquilino`
 --
 
 INSERT INTO `inquilino` (`idInquilino`, `dni`, `apellido`, `nombre`, `telefono`, `correo`, `estado`) VALUES
@@ -227,21 +228,21 @@ INSERT INTO `inquilino` (`idInquilino`, `dni`, `apellido`, `nombre`, `telefono`,
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pago`
+-- Table structure for table `pago`
 --
 
 CREATE TABLE `pago` (
-  `idPago` int(11) NOT NULL,
-  `idContrato` int(11) NOT NULL,
+  `idPago` int NOT NULL,
+  `idContrato` int NOT NULL,
   `fechaPago` date NOT NULL,
   `importe` decimal(10,0) NOT NULL,
-  `numeroPago` varchar(50) NOT NULL,
-  `detalle` varchar(200) NOT NULL,
+  `numeroPago` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `detalle` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
   `estado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `pago`
+-- Dumping data for table `pago`
 --
 
 INSERT INTO `pago` (`idPago`, `idContrato`, `fechaPago`, `importe`, `numeroPago`, `detalle`, `estado`) VALUES
@@ -269,52 +270,54 @@ INSERT INTO `pago` (`idPago`, `idContrato`, `fechaPago`, `importe`, `numeroPago`
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `propietario`
+-- Table structure for table `propietario`
 --
 
 CREATE TABLE `propietario` (
-  `idPropietario` int(11) NOT NULL,
-  `dni` varchar(10) NOT NULL,
-  `apellido` varchar(60) NOT NULL,
-  `nombre` varchar(60) NOT NULL,
-  `telefono` varchar(15) NOT NULL,
-  `correo` varchar(100) NOT NULL,
-  `password` varchar(250) NOT NULL,
-  `estado` tinyint(1) NOT NULL DEFAULT 1
+  `idPropietario` int NOT NULL,
+  `dni` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `apellido` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  `nombre` varchar(60) COLLATE utf8mb4_general_ci NOT NULL,
+  `telefono` varchar(15) COLLATE utf8mb4_general_ci NOT NULL,
+  `correo` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(250) COLLATE utf8mb4_general_ci NOT NULL,
+  `estado` tinyint(1) NOT NULL DEFAULT '1',
+  `ultimoCambioPassword` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `propietario`
+-- Dumping data for table `propietario`
 --
 
-INSERT INTO `propietario` (`idPropietario`, `dni`, `apellido`, `nombre`, `telefono`, `correo`, `password`, `estado`) VALUES
-(1, '37599292', 'Moreira', 'Esteban', '2665044026', 'esteban@correo.com', '$2a$12$r9NrkN7js/sSxR0gDJ9WL.pehGKMNs9COL1CLWnvdKjmkg56XEnCW', 1),
-(2, '32001031', 'Iccardi', 'Gimena', '011336648', 'gime@correo.com', '', 1),
-(3, '39599145', 'Rosales', 'Agustina', '2665008861', 'agus@correo.com', '', 1),
-(4, '30111222', 'Pérez', 'Carlos', '2664558899', 'carlos.perez@mail.com', '', 1),
-(5, '32233444', 'Gómez', 'María', '2664771122', 'maria.gomez@mail.com', '', 1),
-(6, '28999888', 'López', 'Juan', '2664332211', 'juan.lopez@mail.com', '', 1),
-(7, '31122333', 'Fernández', 'Lucia', '2664667788', 'lucia.fernandez@mail.com', '', 1),
-(8, '30555111', 'Ramírez', 'Diego', '2664001234', 'diego.ramirez@mail.com', '', 1),
-(9, '2037599292', 'GRUPO', 'ASIS', '0119873123', 'ASIS@correo.com', '', 1),
-(10, '46001231', 'Rodriguez', 'James', '0115554123', 'james1@correo.com', '', 1),
-(11, '46001233', 'Rodriguez2', 'James2', '0115554123', 'james2@correo.com', '', 1),
-(12, '11111111', 'aaaa', 'aaaaaa', '123456789', 'aa@correo.com', '', 0),
-(13, '38999123', 'Pérez', 'Juan', '2664000000', 'juan.perez@correo.com', '$2a$11$rbL9a6jdbT7CO1AGRzB/ceMuqnO1p6r7oRlEiA0w3iD123Itp..cm', 1);
+INSERT INTO `propietario` (`idPropietario`, `dni`, `apellido`, `nombre`, `telefono`, `correo`, `password`, `estado`, `ultimoCambioPassword`) VALUES
+(1, '37500981', 'Moreira', 'Esteban', '266642123', 'esteban@correo.com', '$2a$11$H3Ar577.P4MK/y721oIGxuEeYP6qwkBjL6naztyrz.eszvHn0YJ2K', 1, '2025-10-23 13:54:44'),
+(2, '32001031', 'Iccardi', 'Gimena', '011336648', 'gime@correo.com', '', 1, '2025-10-23 13:47:10'),
+(3, '39599145', 'Rosales', 'Agustina', '2665008861', 'agus@correo.com', '', 1, '2025-10-23 13:47:10'),
+(4, '30111222', 'Pérez', 'Carlos', '2664558899', 'carlos.perez@mail.com', '', 1, '2025-10-23 13:47:10'),
+(5, '32233444', 'Gómez', 'María', '2664771122', 'maria.gomez@mail.com', '', 1, '2025-10-23 13:47:10'),
+(6, '28999888', 'López', 'Juan', '2664332211', 'juan.lopez@mail.com', '', 1, '2025-10-23 13:47:10'),
+(7, '31122333', 'Fernández', 'Lucia', '2664667788', 'lucia.fernandez@mail.com', '', 1, '2025-10-23 13:47:10'),
+(8, '30555111', 'Ramírez', 'Diego', '2664001234', 'diego.ramirez@mail.com', '', 1, '2025-10-23 13:47:10'),
+(9, '2037599292', 'GRUPO', 'ASIS', '0119873123', 'ASIS@correo.com', '', 1, '2025-10-23 13:47:10'),
+(10, '46001231', 'Rodriguez', 'James', '0115554123', 'james1@correo.com', '', 1, '2025-10-23 13:47:10'),
+(11, '46001233', 'Rodriguez2', 'James2', '0115554123', 'james2@correo.com', '', 1, '2025-10-23 13:47:10'),
+(12, '11111111', 'aaaa', 'aaaaaa', '123456789', 'aa@correo.com', '', 0, '2025-10-23 13:47:10'),
+(13, '38999123', 'Pérez', 'Juan', '2664000000', 'juan.perez@correo.com', '$2a$11$rbL9a6jdbT7CO1AGRzB/ceMuqnO1p6r7oRlEiA0w3iD123Itp..cm', 1, '2025-10-23 13:47:10'),
+(14, '40111222', 'Fernandez', 'Luciano', '2664778899', 'luciano@correo.com', '$2a$11$IUIUE/YcvGW4i2I.bM8I.OYufHUWlOD0PO.Kc.s.f0e6uW5ev3GCS', 1, '2025-10-23 15:11:47');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tipo`
+-- Table structure for table `tipo`
 --
 
 CREATE TABLE `tipo` (
-  `idTipo` int(11) NOT NULL,
-  `observacion` varchar(200) NOT NULL
+  `idTipo` int NOT NULL,
+  `observacion` varchar(200) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `tipo`
+-- Dumping data for table `tipo`
 --
 
 INSERT INTO `tipo` (`idTipo`, `observacion`) VALUES
@@ -327,22 +330,22 @@ INSERT INTO `tipo` (`idTipo`, `observacion`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Table structure for table `usuario`
 --
 
 CREATE TABLE `usuario` (
-  `idUsuario` int(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(100) NOT NULL,
-  `rol` varchar(50) NOT NULL,
-  `avatar` varchar(150) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `apellido` varchar(100) NOT NULL,
-  `estado` tinyint(1) NOT NULL DEFAULT 1
+  `idUsuario` int NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `rol` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `avatar` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `apellido` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `estado` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `usuario`
+-- Dumping data for table `usuario`
 --
 
 INSERT INTO `usuario` (`idUsuario`, `email`, `password`, `rol`, `avatar`, `nombre`, `apellido`, `estado`) VALUES
@@ -355,11 +358,11 @@ INSERT INTO `usuario` (`idUsuario`, `email`, `password`, `rol`, `avatar`, `nombr
 (9, 'dua@correo.com', '$2a$12$nSMxnBJor.5dYM9T2oSuuuLVq8zryYk8WUfk5AgOdwMgDW8/FlId.', 'Empleado', '/img/avatars/dualipa.jpeg', 'Dua', 'Lipa', 0);
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `auditoria`
+-- Indexes for table `auditoria`
 --
 ALTER TABLE `auditoria`
   ADD PRIMARY KEY (`idAuditoria`),
@@ -367,7 +370,7 @@ ALTER TABLE `auditoria`
   ADD KEY `idx_entidad` (`tipoEntidad`,`idEntidad`);
 
 --
--- Indices de la tabla `contrato`
+-- Indexes for table `contrato`
 --
 ALTER TABLE `contrato`
   ADD PRIMARY KEY (`idContrato`),
@@ -375,13 +378,13 @@ ALTER TABLE `contrato`
   ADD KEY `idInmueble` (`idInmueble`);
 
 --
--- Indices de la tabla `direccion`
+-- Indexes for table `direccion`
 --
 ALTER TABLE `direccion`
   ADD PRIMARY KEY (`idDireccion`);
 
 --
--- Indices de la tabla `inmueble`
+-- Indexes for table `inmueble`
 --
 ALTER TABLE `inmueble`
   ADD PRIMARY KEY (`idInmueble`),
@@ -390,115 +393,115 @@ ALTER TABLE `inmueble`
   ADD KEY `idTipo` (`idTipo`);
 
 --
--- Indices de la tabla `inquilino`
+-- Indexes for table `inquilino`
 --
 ALTER TABLE `inquilino`
   ADD PRIMARY KEY (`idInquilino`);
 
 --
--- Indices de la tabla `pago`
+-- Indexes for table `pago`
 --
 ALTER TABLE `pago`
   ADD PRIMARY KEY (`idPago`),
   ADD KEY `idContrato` (`idContrato`);
 
 --
--- Indices de la tabla `propietario`
+-- Indexes for table `propietario`
 --
 ALTER TABLE `propietario`
   ADD PRIMARY KEY (`idPropietario`);
 
 --
--- Indices de la tabla `tipo`
+-- Indexes for table `tipo`
 --
 ALTER TABLE `tipo`
   ADD PRIMARY KEY (`idTipo`),
   ADD UNIQUE KEY `observacion` (`observacion`);
 
 --
--- Indices de la tabla `usuario`
+-- Indexes for table `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`idUsuario`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `auditoria`
+-- AUTO_INCREMENT for table `auditoria`
 --
 ALTER TABLE `auditoria`
-  MODIFY `idAuditoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `idAuditoria` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
--- AUTO_INCREMENT de la tabla `contrato`
+-- AUTO_INCREMENT for table `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `idContrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `idContrato` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
--- AUTO_INCREMENT de la tabla `direccion`
+-- AUTO_INCREMENT for table `direccion`
 --
 ALTER TABLE `direccion`
-  MODIFY `idDireccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idDireccion` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT de la tabla `inmueble`
+-- AUTO_INCREMENT for table `inmueble`
 --
 ALTER TABLE `inmueble`
-  MODIFY `idInmueble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idInmueble` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT de la tabla `inquilino`
+-- AUTO_INCREMENT for table `inquilino`
 --
 ALTER TABLE `inquilino`
-  MODIFY `idInquilino` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `idInquilino` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
--- AUTO_INCREMENT de la tabla `pago`
+-- AUTO_INCREMENT for table `pago`
 --
 ALTER TABLE `pago`
-  MODIFY `idPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `idPago` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
--- AUTO_INCREMENT de la tabla `propietario`
+-- AUTO_INCREMENT for table `propietario`
 --
 ALTER TABLE `propietario`
-  MODIFY `idPropietario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `idPropietario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT de la tabla `tipo`
+-- AUTO_INCREMENT for table `tipo`
 --
 ALTER TABLE `tipo`
-  MODIFY `idTipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `idTipo` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT de la tabla `usuario`
+-- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `idUsuario` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `auditoria`
+-- Constraints for table `auditoria`
 --
 ALTER TABLE `auditoria`
   ADD CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`);
 
 --
--- Filtros para la tabla `contrato`
+-- Constraints for table `contrato`
 --
 ALTER TABLE `contrato`
   ADD CONSTRAINT `contrato_ibfk_1` FOREIGN KEY (`idInquilino`) REFERENCES `inquilino` (`idInquilino`),
   ADD CONSTRAINT `contrato_ibfk_2` FOREIGN KEY (`idInmueble`) REFERENCES `inmueble` (`idInmueble`);
 
 --
--- Filtros para la tabla `inmueble`
+-- Constraints for table `inmueble`
 --
 ALTER TABLE `inmueble`
   ADD CONSTRAINT `inmueble_ibfk_1` FOREIGN KEY (`idTipo`) REFERENCES `tipo` (`idTipo`),
@@ -506,7 +509,7 @@ ALTER TABLE `inmueble`
   ADD CONSTRAINT `inmueble_ibfk_3` FOREIGN KEY (`idPropietario`) REFERENCES `propietario` (`idPropietario`);
 
 --
--- Filtros para la tabla `pago`
+-- Constraints for table `pago`
 --
 ALTER TABLE `pago`
   ADD CONSTRAINT `pago_ibfk_1` FOREIGN KEY (`idContrato`) REFERENCES `contrato` (`idContrato`);
