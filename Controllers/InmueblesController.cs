@@ -22,7 +22,7 @@ namespace InmobiliariaAPI.Controllers
     {
       _repo = repo;
       _env = env;
-      _context= context;
+      _context = context;
     }
 
     //GET: api/Inmuebles/obtenerInmueble (obtiene inmuebles del propietario)
@@ -41,7 +41,7 @@ namespace InmobiliariaAPI.Controllers
       return Ok(inmuebles);
     }
 
-    //GET: api/Inmuebles/activos
+    //GET: api/Inmuebles/activos que estan alquilados
     [HttpGet("activos")]
     public IActionResult ObtenerActivosPorPropietario()
     {
@@ -57,7 +57,9 @@ namespace InmobiliariaAPI.Controllers
     }
 
 
-    //POST: api/Inmuebles/nuevo s
+    //POST: api/Inmuebles/nuevo cargar inmueble 
+    /*Validar el propietario logueado y que el inmueble a agregar le pertenezca, ej puede otro propietario con su token agregar inmuebles a su nombre
+    ej si la inmobiliaria solo deja agregar 3 inmuebles por propietario... Como validamos/protegemos la ruta?*/
     [HttpPost("nuevo")]
     [RequestSizeLimit(10_000_000)] //Hasta 10 MB
     public IActionResult CrearNuevoInmueble([FromForm] InmuebleCrearDTO dto)
@@ -68,12 +70,13 @@ namespace InmobiliariaAPI.Controllers
       var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
       //crear y guardar la direccion
-      var nuevaDireccion= new Direccion{
-        Calle= dto.Calle,
-        Altura= dto.Altura,
-        Cp= dto.Cp,
-        Ciudad= dto.Ciudad,
-        Coordenadas= dto.Coordenadas
+      var nuevaDireccion = new Direccion
+      {
+        Calle = dto.Calle,
+        Altura = dto.Altura,
+        Cp = dto.Cp,
+        Ciudad = dto.Ciudad,
+        Coordenadas = dto.Coordenadas
       };
 
       // Guardar imagen en wwwroot/imagenes_inmuebles
@@ -120,6 +123,34 @@ namespace InmobiliariaAPI.Controllers
         inmueble = creado
       });
     }
+
+
+
+    //PUT: api/Inmuebles/cambiarEstado
+    [HttpPut("cambiarEstado")]
+    public IActionResult CambiarEstado([FromBody] InmuebleEstadoDTO dto)
+    {
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var idPropietarioToken = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+      var ok = _repo.CambiarEstado(dto.IdInmueble, idPropietarioToken, dto.Estado);
+
+      if (!ok)
+        return Forbid("No tiene permiso para modificar este inmueble o no existe.");
+
+      return Ok(new
+      {
+        mensaje = dto.Estado
+              ? "Inmueble habilitado correctamente."
+              : "Inmueble deshabilitado correctamente.",
+        idInmueble = dto.IdInmueble,
+        nuevoEstado = dto.Estado
+      });
+
+    }
+
+
 
 
 

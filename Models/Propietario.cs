@@ -12,7 +12,7 @@ namespace InmobiliariaAPI.Models
     public int IdPropietario { get; set; }
 
     [Required]
-    [RegularExpression(@"^\d{7,10}$", ErrorMessage = "El DNI debe contener solo números (7 a 10 dígitos).")]
+    [RegularExpression(@"^\d{7,10}$", ErrorMessage = "El DNI debe contener solo numeros (7 a 10 dígitos).")]
     public string Dni { get; set; } = string.Empty;
 
     [Required]
@@ -23,7 +23,11 @@ namespace InmobiliariaAPI.Models
     //Solo letras
     public string Nombre { get; set; } = string.Empty;
 
+
+
     //Solo numeros
+    [RegularExpression(@"^\d{6,12}$", ErrorMessage = "El telefono debe contener solo numeros (7 a 10 dígitos).")]
+    //si no se llena el campo del telefono, viaja vacio y en la BD el campo que vacio
     public string Telefono { get; set; } = string.Empty;
 
     //Validar email

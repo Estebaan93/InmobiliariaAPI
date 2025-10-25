@@ -5,6 +5,7 @@ using System.Security.Claims;
 using InmobiliariaAPI.Repositories;
 using InmobiliariaAPI.Models;
 using InmobiliariaAPI.Services;
+using InmobiliariaAPI.Models.ViewModels;
 
 
 namespace InmobiliariaAPI.Controllers
@@ -87,36 +88,58 @@ namespace InmobiliariaAPI.Controllers
 
     [HttpPut("editar")]
     [Authorize]
-    public IActionResult Editar([FromBody] Propietario propietario)
+    public IActionResult Editar([FromBody] PropietarioEditarDTO dto)
     {
       var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-      propietario.IdPropietario = id;
+      var existente = _repo.ObtenerPorId(id);
 
-      var ok = _repo.Actualizar(propietario);
-      return ok ? Ok("Datos actualizados") : NotFound("No se encontró el propietario");
+      if (existente == null)
+        return NotFound("Propietario no encontrado");
+
+      // Actualiza solo los campos enviados
+      if (!string.IsNullOrWhiteSpace(dto.Dni))
+        existente.Dni = dto.Dni;
+
+      if (!string.IsNullOrWhiteSpace(dto.Apellido))
+        existente.Apellido = dto.Apellido;
+
+      if (!string.IsNullOrWhiteSpace(dto.Nombre))
+        existente.Nombre = dto.Nombre;
+
+      if (!string.IsNullOrWhiteSpace(dto.Telefono))
+        existente.Telefono = dto.Telefono;
+
+      if (!string.IsNullOrWhiteSpace(dto.Correo))
+        existente.Correo = dto.Correo;
+
+      var ok = _repo.Actualizar(existente);
+
+      return ok ? Ok("Datos actualizados") : NotFound("No se encontro el propietario");
     }
+
+
 
     [HttpPut("cambiarpassword")]
     [Authorize]
     public IActionResult CambiarPassword([FromBody] CambioPasswordRequest req)
     {
-    var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-    var propietario = _repo.ObtenerPorId(id);
-    if (propietario == null)
+      var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+      var propietario = _repo.ObtenerPorId(id);
+      if (propietario == null)
         return NotFound("Propietario no encontrado");
 
-    var ok = _repo.CambiarPassword(id, req.ClaveActual, req.ClaveNueva);
-    if (!ok)
+      var ok = _repo.CambiarPassword(id, req.ClaveActual, req.ClaveNueva);
+      if (!ok)
         return BadRequest("Contraseña actual incorrecta");
 
-    //Generamos un nuevo token para reemplazar el anterior
-    var nuevoToken = _jwt.GenerarToken(propietario);
+      //Generamos un nuevo token para reemplazar el anterior
+      //var nuevoToken = _jwt.GenerarToken(propietario);
 
-    return Ok(new 
-    { 
-        mensaje = "Contraseña actualizada correctamente", 
-        token = nuevoToken 
-    });
+      return Ok(new
+      {
+        mensaje = "Contraseña actualizada correctamente",
+        //token = nuevoToken 
+      });
     }
   }
 

@@ -86,10 +86,31 @@ namespace InmobiliariaAPI.Repositories
       {
         return null;
       }
-
-
-
     }
+
+  public bool CambiarEstado(int idInmueble, int idPropietario, bool nuevoEstado)
+{
+    var inmueble = _context.Inmuebles
+        .FirstOrDefault(i => i.IdInmueble == idInmueble && i.IdPropietario == idPropietario);
+
+    if (inmueble == null)
+        return false; // No existe o no pertenece al propietario
+
+    inmueble.Estado = nuevoEstado;
+
+    try
+    {
+        _context.Inmuebles.Update(inmueble);
+        _context.SaveChanges();
+        return true;
+    }
+    catch (Exception)
+    {
+        return false;
+    }
+}
+
+
 
   }
 }

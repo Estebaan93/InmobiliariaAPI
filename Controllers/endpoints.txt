@@ -3,14 +3,16 @@ POST login - {correo, password} - response {token} - ok
 
 GET perfil - {token bearer} - response {datos del perfil}- ok
 
+//ESTO LO HACE EL ADMINISTRATIVO
 POST registro - {json: dni, apellido, nombre, telefono, correo, password} - response {token + 200} - ok
 
 PUT editar -  {token bearer} + {json: dni, apellido, nombre, telefono, correo} - el idPropietario viene del token.
 El password queda el mismo ya que se ignora en el modelo, y estado tambien - ok
+Revisar los campos que no se llenan, pasan a estar vacios en la BD mas alla de que sean nulos
 
 PUT cambiarpassword - {token bearer } + {json: "claveActual" , "claveNueva" } - ok 
 Despues de actualizar la contraseña se genera un token nuevo, invalidando el viejo, en la respuesta del endpoint
-devuelve el token
+devuelve el token pero sin embargo el token nuevo no sirve no funciona para el endpoint de perfil?
 
 
 Inmuebles:

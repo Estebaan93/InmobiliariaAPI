@@ -10,6 +10,8 @@ namespace InmobiliariaAPI.Repositories
     List<InmuebleActivoDTO> ObtenerActivosPorPropietario(int idPropietario);
     Inmueble? ObtenerPorId(int id);
     Inmueble? CrearInmueble(Inmueble inmueble);
+    bool CambiarEstado(int idInmueble, int idPropietario, bool nuevoEstado);
+
 
 
   }
