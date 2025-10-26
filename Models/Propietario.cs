@@ -16,22 +16,26 @@ namespace InmobiliariaAPI.Models
     public string Dni { get; set; } = string.Empty;
 
     [Required]
-    //Solo letras
+    [RegularExpression(@"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$", ErrorMessage = "El apellido solo puede contener letras.")]
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "El apellido debe tener entre 2 y 50 caracteres.")]
     public string Apellido { get; set; } = string.Empty;
 
     [Required]
-    //Solo letras
+    [RegularExpression(@"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$", ErrorMessage = "El nombre solo puede contener letras.")]
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 50 caracteres.")]
     public string Nombre { get; set; } = string.Empty;
 
 
 
     //Solo numeros
     [RegularExpression(@"^\d{6,12}$", ErrorMessage = "El telefono debe contener solo numeros (7 a 10 dígitos).")]
-    //si no se llena el campo del telefono, viaja vacio y en la BD el campo que vacio
+    //si no se llena el campo del telefono, en la BD se mantiene el mismo
     public string Telefono { get; set; } = string.Empty;
 
-    //Validar email
-    [Required, EmailAddress]
+    //Validar correo
+    [Required]
+    [EmailAddress(ErrorMessage = "El formato del correo no es válido.")]
+    [StringLength(100, ErrorMessage = "El correo no puede superar los 100 caracteres.")]
     public string Correo { get; set; } = string.Empty;
 
     //[Required] para el endpoint de editar perfil

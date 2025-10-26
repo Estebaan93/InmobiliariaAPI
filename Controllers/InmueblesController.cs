@@ -72,12 +72,14 @@ namespace InmobiliariaAPI.Controllers
       //crear y guardar la direccion
       var nuevaDireccion = new Direccion
       {
-        Calle = dto.Calle,
+        Calle = dto.Calle.Trim(),
         Altura = dto.Altura,
-        Cp = dto.Cp,
-        Ciudad = dto.Ciudad,
-        Coordenadas = dto.Coordenadas
+        Cp = dto.Cp.Trim(),
+        Ciudad = dto.Ciudad.Trim(),
+        Coordenadas = dto.Coordenadas.Trim()
       };
+      _context.Direcciones.Add(nuevaDireccion);
+      _context.SaveChanges();
 
       // Guardar imagen en wwwroot/imagenes_inmuebles
       string carpeta = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "imagenes_inmuebles");

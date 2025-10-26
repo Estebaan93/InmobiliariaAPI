@@ -90,26 +90,30 @@ namespace InmobiliariaAPI.Controllers
     [Authorize]
     public IActionResult Editar([FromBody] PropietarioEditarDTO dto)
     {
+      //Validamos el modelo
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
       var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
       var existente = _repo.ObtenerPorId(id);
 
       if (existente == null)
         return NotFound("Propietario no encontrado");
 
-      // Actualiza solo los campos enviados
-      if (!string.IsNullOrWhiteSpace(dto.Dni))
+      // Actualiza solo los campos enviados y no vacios
+      if (dto.Dni !=null && !string.IsNullOrWhiteSpace(dto.Dni))
         existente.Dni = dto.Dni;
 
-      if (!string.IsNullOrWhiteSpace(dto.Apellido))
+      if (dto.Apellido !=null && !string.IsNullOrWhiteSpace(dto.Apellido))
         existente.Apellido = dto.Apellido;
 
-      if (!string.IsNullOrWhiteSpace(dto.Nombre))
+      if (dto.Nombre !=null && !string.IsNullOrWhiteSpace(dto.Nombre))
         existente.Nombre = dto.Nombre;
 
-      if (!string.IsNullOrWhiteSpace(dto.Telefono))
+      if (dto.Telefono !=null && !string.IsNullOrWhiteSpace(dto.Telefono))
         existente.Telefono = dto.Telefono;
 
-      if (!string.IsNullOrWhiteSpace(dto.Correo))
+      if (dto.Correo !=null && !string.IsNullOrWhiteSpace(dto.Correo))
         existente.Correo = dto.Correo;
 
       var ok = _repo.Actualizar(existente);

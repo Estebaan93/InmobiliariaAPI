@@ -22,6 +22,7 @@ namespace InmobiliariaAPI.Repositories
         .Include(i => i.Direccion)
         .Include(i => i.Tipo)
         .Where(i => i.IdPropietario == idPropietario)
+        .OrderByDescending(i=>i.IdInmueble)
         .AsNoTracking()
         .ToList();
     }
