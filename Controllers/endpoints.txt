@@ -1,15 +1,24 @@
 api/Propietarios:
+http://localhost:5083/api/Propietarios/login
 POST login - {correo, password} - response {token} - ok
 
+
+http://localhost:5083/api/Propietarios/perfil
 GET perfil - {token bearer} - response {datos del perfil}- ok
 
+
+http://localhost:5083/api/Propietarios/registro
 //ESTO LO HACE EL ADMINISTRATIVO
 POST registro - {json: dni, apellido, nombre, telefono, correo, password} - response {token + 200} - ok
 
+
+http://localhost:5083/api/Propietarios/editar
 PUT editar -  {token bearer} + {json: dni, apellido, nombre, telefono, correo} - el idPropietario viene del token.
 El password queda el mismo ya que se ignora en el modelo, y estado tambien - ok
 Los campos que no se llenan o no se envian quedan igual en la BD.
 
+
+http://localhost:5083/api/Propietarios/cambiarPassword
 PUT cambiarpassword - {token bearer } + {json: "claveActual" , "claveNueva" } - ok 
 Despues de actualizar la contraseña se genera un token nuevo, invalidando el viejo, en la respuesta del endpoint
 devuelve el token pero sin embargo el token nuevo no sirve no funciona para el endpoint de perfil?
@@ -17,11 +26,24 @@ devuelve el token pero sin embargo el token nuevo no sirve no funciona para el e
 
 
 api/Inmuebles:
+http://localhost:5083/api/Inmuebles/obtener
 GET obtener - {token bearer} - response {todos los inmuebles del propietario} - ok 
 
+
+http://localhost:5083/api/Inmuebles/nuevo
 POST nuevo - {token bearer} + {Multi-Part: "Calle", "Altura", "Cp", "Ciudad", "Coordenadas", "idTipo", "metros2", "cantidadAmbientes", "precio", "descripcion", "cochera", "piscina", "mascotas", "urlImagen" }
 
+
+http://localhost:5083/api/Inmuebles/activos
 GET activos - {token bearer} - response {los que tienen contratos vigentes + inquilino} - ok 
 
+
 PUT cambiarEstado - {token bearer }
+
+
+
+api/Contratos:
+http://localhost:5083/api/Contratos/porInmueble/{id}
+GET porInmueble - {token bearer} - response {Si el id del inmu corresponde al propietario logueado y esta alquilado devuelve }
+
 

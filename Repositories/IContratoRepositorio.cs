@@ -7,5 +7,9 @@ namespace InmobiliariaAPI.Repositories
   {
     IEnumerable<Contrato> ObtenerActivosPorPropietario(int idPropietario);
     Contrato? ObtenerPorId(int id);
+    IEnumerable<Contrato> ObtenerPorInmueble(int idInmueble, int idPropietario);
+
+
+
   }
 }

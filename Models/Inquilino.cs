@@ -2,6 +2,7 @@
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace InmobiliariaAPI.Models
 {
@@ -27,6 +28,7 @@ namespace InmobiliariaAPI.Models
 
     public bool Estado { get; set; } = true;
     
+    [JsonIgnore]
     public ICollection<Contrato>? Contratos { get; set; }
 
   }

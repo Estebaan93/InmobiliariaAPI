@@ -1,4 +1,5 @@
 //Models/ViewModels/InmuebleActivoDTO
+/*Objeto de transferencia de datos*/
 namespace InmobiliariaAPI.Models.ViewModels
 {
   public class InmuebleActivoDTO

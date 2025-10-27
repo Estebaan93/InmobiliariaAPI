@@ -69,18 +69,62 @@ namespace InmobiliariaAPI.Controllers
 
       var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-      //crear y guardar la direccion
-      var nuevaDireccion = new Direccion
-      {
-        Calle = dto.Calle.Trim(),
-        Altura = dto.Altura,
-        Cp = dto.Cp.Trim(),
-        Ciudad = dto.Ciudad.Trim(),
-        Coordenadas = dto.Coordenadas.Trim()
-      };
-      _context.Direcciones.Add(nuevaDireccion);
-      _context.SaveChanges();
+      // obtener direccion si existe
+      string calleTrim = dto.Calle.Trim();
+      string cpTrim = dto.Cp.Trim();
+      string ciudadTrim = dto.Ciudad.Trim();
 
+      //buscamos
+      var direccionExistente = _context.Direcciones.FirstOrDefault(d =>
+        d.Calle == calleTrim &&
+        d.Altura == dto.Altura &&
+        d.Cp == cpTrim &&
+        d.Ciudad == ciudadTrim
+      );
+
+      Direccion direccionParaInmueble;
+      if (direccionExistente != null)
+      {
+        //Si existe reutilizafmos, puede ser un edificio, torre, shopping etc
+        direccionParaInmueble = direccionExistente;
+      }
+      else
+      {
+        //crear y guardar la direccion
+        var nuevaDireccion = new Direccion
+        {
+          Calle = calleTrim,
+          Altura = dto.Altura,
+          Cp = cpTrim,
+          Ciudad = ciudadTrim,
+          Coordenadas = dto.Coordenadas.Trim()
+        };
+        _context.Direcciones.Add(nuevaDireccion);
+        _context.SaveChanges();
+
+        direccionParaInmueble = nuevaDireccion;
+
+      }
+
+      //Validamos el inmue duplicado
+      var inmuebleDuplicado = _context.Inmuebles.FirstOrDefault(i =>
+            i.IdPropietario == idPropietario &&
+            i.IdDireccion == direccionParaInmueble.IdDireccion &&
+            i.IdTipo == dto.IdTipo &&
+            i.Metros2 == dto.Metros2 && 
+            i.CantidadAmbientes == dto.CantidadAmbientes
+        );
+      if (inmuebleDuplicado != null)
+      {
+        // Si encontramos un duplicado, devolvemos un error 409 (Conflict)
+        return Conflict(new
+        {
+          mensaje = "Ya existe un inmueble con caracteristicas identicas (misma direccion, tipo, metros y ambientes) para este propietario.",
+          idInmuebleExistente = inmuebleDuplicado.IdInmueble
+        });
+      }
+
+      //Creamos el inmueble  
       // Guardar imagen en wwwroot/imagenes_inmuebles
       string carpeta = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "imagenes_inmuebles");
       if (!Directory.Exists(carpeta))
@@ -101,7 +145,7 @@ namespace InmobiliariaAPI.Controllers
       var inmueble = new Inmueble
       {
         IdPropietario = idPropietario,
-        IdDireccion = nuevaDireccion.IdDireccion,
+        IdDireccion = direccionParaInmueble.IdDireccion,
         IdTipo = dto.IdTipo,
         Metros2 = dto.Metros2,
         CantidadAmbientes = dto.CantidadAmbientes,
@@ -119,6 +163,8 @@ namespace InmobiliariaAPI.Controllers
       if (creado == null)
         return StatusCode(500, "Error al crear el inmueble");
 
+      creado.Tipo = _context.Tipos.Find(creado.IdTipo);
+      creado.Direccion = direccionParaInmueble;
       return Ok(new
       {
         mensaje = "Inmueble creado correctamente (pendiente de habilitacion)",
