@@ -23,14 +23,17 @@ namespace InmobiliariaAPI.Controllers
       _jwt = jwt;
     }
 
-    // LOGIN
+    // LOGIN - Recibe application/x-www-form-urlencoded
     [AllowAnonymous]
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest request)
+    public IActionResult Login([FromForm] string correo, [FromForm] string password)
     {
-      var propietario = _repo.Login(request.Correo, request.Password);
+      if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(password))
+        return BadRequest("Correo y contraseña son requeridos.");
+
+      var propietario = _repo.Login(correo, password);
       if (propietario == null)
-        return Unauthorized("Correo o contraseña incorrectos.");
+        return Unauthorized("Correo o contraseña incorrectos");
 
       var token = _jwt.GenerarToken(propietario);
       return Ok(new { token });
@@ -125,14 +128,14 @@ namespace InmobiliariaAPI.Controllers
 
     [HttpPut("cambiarpassword")]
     [Authorize]
-    public IActionResult CambiarPassword([FromBody] CambioPasswordRequest req)
+    public IActionResult CambiarPassword([FromForm] string currentPassword, [FromForm] string newPassword)
     {
       var id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
       var propietario = _repo.ObtenerPorId(id);
       if (propietario == null)
         return NotFound("Propietario no encontrado");
 
-      var ok = _repo.CambiarPassword(id, req.ClaveActual, req.ClaveNueva);
+      var ok = _repo.CambiarPassword(id, currentPassword, newPassword);
       if (!ok)
         return BadRequest("Contraseña actual incorrecta");
 
@@ -147,15 +150,16 @@ namespace InmobiliariaAPI.Controllers
     }
   }
 
-  public class LoginRequest
+  /*public class LoginRequest
   {
     public string Correo { get; set; }
     public string Password { get; set; }
-  }
+  }*/
 
-  public class CambioPasswordRequest
+  /*public class CambioPasswordRequest
   {
     public string ClaveActual { get; set; }
     public string ClaveNueva { get; set; }
-  }
+  }*/
+
 }

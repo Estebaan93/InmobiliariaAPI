@@ -1,26 +1,25 @@
-//Models/ViewModels/InmuebleCrearDTO.cs
-/*using Microsoft.AspNetCore.Http;
+//Models/ViewModels/InmuebleJsonDTO.cs
 using System.ComponentModel.DataAnnotations;
 
 namespace InmobiliariaAPI.Models.ViewModels
 {
-  public class InmuebleCrearDTO
+  public class InmuebleJsonDTO
   {
     //Campos de direccion
     [Required]
     public string Calle { get; set; } = string.Empty;
 
     [Required]
-    public int Altura{ get; set; }
+    public int Altura { get; set; }
 
     [Required]
-    public string Cp { get; set; }= string.Empty;
+    public string Cp { get; set; } = string.Empty;
 
     [Required]
-    public string Ciudad { get; set; }= string.Empty;
+    public string Ciudad { get; set; } = string.Empty;
 
     [Required]
-    public string Coordenadas { get; set; }= string.Empty;
+    public string Coordenadas { get; set; } = string.Empty;
 
 
     //Campos de inmuebles
@@ -43,9 +42,6 @@ namespace InmobiliariaAPI.Models.ViewModels
     public bool Piscina { get; set; }
     public bool Mascotas { get; set; }
 
-    // Imagen subida desde Android
-    [Required]
-    public IFormFile Imagen { get; set; } = null!;
+    // NO incluye la imagen - se recibe por separado
   }
 }
-*/

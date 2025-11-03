@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using InmobiliariaAPI.Models;
 using InmobiliariaAPI.Models.ViewModels;
 using InmobiliariaAPI.Data;
+using System.Text.Json;
 
 namespace InmobiliariaAPI.Controllers
 {
@@ -57,15 +58,71 @@ namespace InmobiliariaAPI.Controllers
     }
 
 
-    //POST: api/Inmuebles/nuevo cargar inmueble 
+    //POST: api/Inmuebles/nuevo cargar inmueble + Json {inmueble} + img por separado
     /*Validar el propietario logueado y que el inmueble a agregar le pertenezca, ej puede otro propietario con su token agregar inmuebles a su nombre
     ej si la inmobiliaria solo deja agregar 3 inmuebles por propietario... Como validamos/protegemos la ruta?*/
     [HttpPost("nuevo")]
     [RequestSizeLimit(10_000_000)] //Hasta 10 MB
-    public IActionResult CrearNuevoInmueble([FromForm] InmuebleCrearDTO dto)
+    [Consumes("multipart/form-data")]
+    public IActionResult CrearNuevoInmueble([FromForm] InmuebleCargaDTO carga)
     {
-      if (!ModelState.IsValid)
-        return BadRequest(ModelState);
+      // Validar que se envió la imagen
+      if (carga.Imagen == null || carga.Imagen.Length == 0)
+        return BadRequest("La imagen es requerida");
+
+      // Validar que se envió el JSON del inmueble
+      if (string.IsNullOrWhiteSpace(carga.Inmueble))
+        return BadRequest("Los datos del inmueble son requeridos");
+        
+      // Deserializar el JSON a InmuebleJsonDTO
+      InmuebleJsonDTO dto;
+      try
+      {
+        dto = JsonSerializer.Deserialize<InmuebleJsonDTO>(carga.Inmueble, new JsonSerializerOptions
+        {
+          PropertyNameCaseInsensitive = true
+        });
+
+        if (dto == null)
+          return BadRequest("El formato del JSON es invalido");
+      }
+      catch (JsonException ex)
+      {
+        return BadRequest($"Error al procesar el JSON: {ex.Message}");
+      }
+
+      // Validar el modelo manualmente (ya que viene como string)
+      if (string.IsNullOrWhiteSpace(dto.Calle))
+        return BadRequest("La calle es requerida");
+      
+      if (dto.Altura <= 0)
+        return BadRequest("La altura debe ser mayor a 0");
+      
+      if (string.IsNullOrWhiteSpace(dto.Cp))
+        return BadRequest("El codigo postal es requerido");
+      
+      if (string.IsNullOrWhiteSpace(dto.Ciudad))
+        return BadRequest("La ciudad es requerida");
+      
+      if (string.IsNullOrWhiteSpace(dto.Coordenadas))
+        return BadRequest("Las coordenadas son requeridas");
+      
+      if (dto.IdTipo <= 0)
+        return BadRequest("El tipo de inmueble es requerido");
+      
+      if (string.IsNullOrWhiteSpace(dto.Metros2))
+        return BadRequest("Los metros cuadrados son requeridos");
+      
+      if (dto.CantidadAmbientes <= 0)
+        return BadRequest("La cantidad de ambientes debe ser mayor a 0");
+      
+      if (dto.Precio <= 0)
+        return BadRequest("El precio debe ser mayor a 0");
+      
+      if (string.IsNullOrWhiteSpace(dto.Descripcion))
+        return BadRequest("La descripcion es requerida");
+
+
 
       var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -116,7 +173,7 @@ namespace InmobiliariaAPI.Controllers
         );
       if (inmuebleDuplicado != null)
       {
-        // Si encontramos un duplicado, devolvemos un error 409 (Conflict)
+        // Si encontramos un duplicado, devolvemos un error 409 (conflicto)
         return Conflict(new
         {
           mensaje = "Ya existe un inmueble con caracteristicas identicas (misma direccion, tipo, metros y ambientes) para este propietario.",
@@ -130,19 +187,19 @@ namespace InmobiliariaAPI.Controllers
       if (!Directory.Exists(carpeta))
         Directory.CreateDirectory(carpeta);
 
-      string nombreArchivo = $"{Guid.NewGuid()}_{dto.Imagen.FileName}";
+      string nombreArchivo = $"{Guid.NewGuid()}_{carga.Imagen.FileName}";
       string rutaArchivo = Path.Combine(carpeta, nombreArchivo);
 
       using (var stream = new FileStream(rutaArchivo, FileMode.Create))
       {
-        dto.Imagen.CopyTo(stream);
+        carga.Imagen.CopyTo(stream);
       }
 
       //Ruta publica (para android)
       string urlImagen = $"{Request.Scheme}://{Request.Host}/imagenes_inmuebles/{nombreArchivo}";
 
       // Crear el inmueble
-      var inmueble = new Inmueble
+      var inmuebleNuevo = new Inmueble
       {
         IdPropietario = idPropietario,
         IdDireccion = direccionParaInmueble.IdDireccion,
@@ -158,7 +215,7 @@ namespace InmobiliariaAPI.Controllers
         Estado = false //eshabilitado por defecto
       };
 
-      var creado = _repo.CrearInmueble(inmueble);
+      var creado = _repo.CrearInmueble(inmuebleNuevo);
 
       if (creado == null)
         return StatusCode(500, "Error al crear el inmueble");
