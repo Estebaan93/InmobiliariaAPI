@@ -9,6 +9,6 @@ namespace InmobiliariaAPI.Models.ViewModels
         public IFormFile Imagen { get; set; }
 
         [Required(ErrorMessage = "Los datos del inmueble son requeridos")]
-        public string Inmueble { get; set; } // Aquí vendrá el string JSON
+        public string Inmueble { get; set; } // Aqui vendra el string JSON
     }
 }

@@ -5,6 +5,6 @@ namespace InmobiliariaAPI.Repositories
 {
   public interface IPagoRepositorio
   {
-    IEnumerable<Pago> ObtenerPorContrato(int idContrato);
+    IEnumerable<Pago> ObtenerPorContrato(int idContrato, int idPropietario);
   }
 }

@@ -75,19 +75,12 @@ namespace InmobiliariaAPI.Repositories
 
 
     //Crear inmueble
-    public Inmueble? CrearInmueble(Inmueble inmueble)
+    public Inmueble CrearInmueble(Inmueble inmueble)
     {
-      try
-      {
-        _context.Inmuebles.Add(inmueble);
-        _context.SaveChanges();
-        return inmueble;
-      }
-      catch (Exception)
-      {
-        return null;
-      }
+      _context.Inmuebles.Add(inmueble);
+      return inmueble;
     }
+    
 
   public bool CambiarEstado(int idInmueble, int idPropietario, bool nuevoEstado)
 {

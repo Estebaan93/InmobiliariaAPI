@@ -8,6 +8,7 @@ using InmobiliariaAPI.Models;
 using InmobiliariaAPI.Models.ViewModels;
 using InmobiliariaAPI.Data;
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations; // Para ValidationContext
 
 namespace InmobiliariaAPI.Controllers
 {
@@ -60,20 +61,20 @@ namespace InmobiliariaAPI.Controllers
 
     //POST: api/Inmuebles/nuevo cargar inmueble + Json {inmueble} + img por separado
     /*Validar el propietario logueado y que el inmueble a agregar le pertenezca, ej puede otro propietario con su token agregar inmuebles a su nombre
-    ej si la inmobiliaria solo deja agregar 3 inmuebles por propietario... Como validamos/protegemos la ruta?*/
+    ej si la inmobiliaria solo deja agregar 3 inmuebles por propietario...*/
     [HttpPost("nuevo")]
     [RequestSizeLimit(10_000_000)] //Hasta 10 MB
     [Consumes("multipart/form-data")]
     public IActionResult CrearNuevoInmueble([FromForm] InmuebleCargaDTO carga)
     {
-      // Validar que se envió la imagen
+      // Validar que se envio la imagen
       if (carga.Imagen == null || carga.Imagen.Length == 0)
         return BadRequest("La imagen es requerida");
 
-      // Validar que se envió el JSON del inmueble
+      // Validar que se envio el JSON del inmueble
       if (string.IsNullOrWhiteSpace(carga.Inmueble))
         return BadRequest("Los datos del inmueble son requeridos");
-        
+
       // Deserializar el JSON a InmuebleJsonDTO
       InmuebleJsonDTO dto;
       try
@@ -81,10 +82,7 @@ namespace InmobiliariaAPI.Controllers
         dto = JsonSerializer.Deserialize<InmuebleJsonDTO>(carga.Inmueble, new JsonSerializerOptions
         {
           PropertyNameCaseInsensitive = true
-        });
-
-        if (dto == null)
-          return BadRequest("El formato del JSON es invalido");
+        }) ?? throw new JsonException("El JSON deserializado es nulo.");
       }
       catch (JsonException ex)
       {
@@ -92,142 +90,145 @@ namespace InmobiliariaAPI.Controllers
       }
 
       // Validar el modelo manualmente (ya que viene como string)
-      if (string.IsNullOrWhiteSpace(dto.Calle))
-        return BadRequest("La calle es requerida");
-      
-      if (dto.Altura <= 0)
-        return BadRequest("La altura debe ser mayor a 0");
-      
-      if (string.IsNullOrWhiteSpace(dto.Cp))
-        return BadRequest("El codigo postal es requerido");
-      
-      if (string.IsNullOrWhiteSpace(dto.Ciudad))
-        return BadRequest("La ciudad es requerida");
-      
-      if (string.IsNullOrWhiteSpace(dto.Coordenadas))
-        return BadRequest("Las coordenadas son requeridas");
-      
-      if (dto.IdTipo <= 0)
-        return BadRequest("El tipo de inmueble es requerido");
-      
-      if (string.IsNullOrWhiteSpace(dto.Metros2))
-        return BadRequest("Los metros cuadrados son requeridos");
-      
-      if (dto.CantidadAmbientes <= 0)
-        return BadRequest("La cantidad de ambientes debe ser mayor a 0");
-      
-      if (dto.Precio <= 0)
-        return BadRequest("El precio debe ser mayor a 0");
-      
-      if (string.IsNullOrWhiteSpace(dto.Descripcion))
-        return BadRequest("La descripcion es requerida");
 
+      // Usamos DataAnnotations manualmente ya que el DTO viene como string
+      var validationContext = new ValidationContext(dto, null, null);
+      var validationResults = new List<ValidationResult>();
+      bool isValid = Validator.TryValidateObject(dto, validationContext, validationResults, true);
 
-
-      var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-      // obtener direccion si existe
-      string calleTrim = dto.Calle.Trim();
-      string cpTrim = dto.Cp.Trim();
-      string ciudadTrim = dto.Ciudad.Trim();
-
-      //buscamos
-      var direccionExistente = _context.Direcciones.FirstOrDefault(d =>
-        d.Calle == calleTrim &&
-        d.Altura == dto.Altura &&
-        d.Cp == cpTrim &&
-        d.Ciudad == ciudadTrim
-      );
-
-      Direccion direccionParaInmueble;
-      if (direccionExistente != null)
+      if (!isValid)
       {
-        //Si existe reutilizafmos, puede ser un edificio, torre, shopping etc
-        direccionParaInmueble = direccionExistente;
+        // Devuelve el primer error de validacion encontrado
+        return BadRequest(validationResults.First().ErrorMessage);
       }
-      else
+
+      // Iniciar Transaccion Atomica
+      using (var transaction = _context.Database.BeginTransaction())
       {
-        //crear y guardar la direccion
-        var nuevaDireccion = new Direccion
+        try
         {
-          Calle = calleTrim,
-          Altura = dto.Altura,
-          Cp = cpTrim,
-          Ciudad = ciudadTrim,
-          Coordenadas = dto.Coordenadas.Trim()
-        };
-        _context.Direcciones.Add(nuevaDireccion);
-        _context.SaveChanges();
+          var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        direccionParaInmueble = nuevaDireccion;
+          //Logica de "Buscar o Crear" Direccion
+          string calleTrim = dto.Calle.Trim();
+          string cpTrim = dto.Cp.Trim();
+          string ciudadTrim = dto.Ciudad.Trim();
 
-      }
+          var direccionExistente = _context.Direcciones.FirstOrDefault(d =>
+              d.Calle == calleTrim &&
+              d.Altura == dto.Altura &&
+              d.Cp == cpTrim &&
+              d.Ciudad == ciudadTrim
+          );
 
-      //Validamos el inmue duplicado
-      var inmuebleDuplicado = _context.Inmuebles.FirstOrDefault(i =>
-            i.IdPropietario == idPropietario &&
-            i.IdDireccion == direccionParaInmueble.IdDireccion &&
-            i.IdTipo == dto.IdTipo &&
-            i.Metros2 == dto.Metros2 && 
-            i.CantidadAmbientes == dto.CantidadAmbientes
-        );
-      if (inmuebleDuplicado != null)
-      {
-        // Si encontramos un duplicado, devolvemos un error 409 (conflicto)
-        return Conflict(new
+          Direccion direccionParaInmueble;
+          if (direccionExistente != null)
+          {
+            direccionParaInmueble = direccionExistente;
+          }
+          else
+          {
+            var nuevaDireccion = new Direccion
+            {
+              Calle = calleTrim,
+              Altura = dto.Altura,
+              Cp = cpTrim,
+              Ciudad = ciudadTrim,
+              Coordenadas = dto.Coordenadas.Trim()
+            };
+            _context.Direcciones.Add(nuevaDireccion);
+            // Guardamos aqui para obtener el IdDireccion
+            _context.SaveChanges();
+            direccionParaInmueble = nuevaDireccion;
+          }
+
+          //Chequeo de Duplicados (ahora con el IdDireccion correcto)
+          var inmuebleDuplicado = _context.Inmuebles.FirstOrDefault(i =>
+              i.IdPropietario == idPropietario &&
+              i.IdDireccion == direccionParaInmueble.IdDireccion && // <-- ID ya está disponible
+              i.IdTipo == dto.IdTipo &&
+              i.Metros2 == dto.Metros2 &&
+              i.CantidadAmbientes == dto.CantidadAmbientes
+          );
+
+          if (inmuebleDuplicado != null)
+          {
+            transaction.Rollback(); // Deshace el SaveChanges de la direccion (si era nueva)
+            return Conflict(new
+            {
+              mensaje = "Ya existe un inmueble con caracteristicas identicas.",
+              idInmuebleExistente = inmuebleDuplicado.IdInmueble
+            });
+          }
+
+          //Logica de Guardado de Archivo
+          string carpeta = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "imagenes_inmuebles");
+          if (!Directory.Exists(carpeta))
+            Directory.CreateDirectory(carpeta);
+
+          // Nombre de archivo seguro: GUID + extension
+          string extension = Path.GetExtension(carga.Imagen.FileName);
+          string nombreArchivo = $"{Guid.NewGuid()}{extension}";
+          string rutaArchivo = Path.Combine(carpeta, nombreArchivo);
+
+          using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+          {
+            carga.Imagen.CopyTo(stream);
+          }
+
+          string urlImagen = $"{Request.Scheme}://{Request.Host}/imagenes_inmuebles/{nombreArchivo}";
+
+          //Creacion del Inmueble
+          var inmuebleNuevo = new Inmueble
+          {
+            IdPropietario = idPropietario,
+            IdDireccion = direccionParaInmueble.IdDireccion,
+            IdTipo = dto.IdTipo,
+            Metros2 = dto.Metros2,
+            CantidadAmbientes = dto.CantidadAmbientes,
+            Precio = dto.Precio,
+            Descripcion = dto.Descripcion.Trim(),
+            Cochera = dto.Cochera,
+            Piscina = dto.Piscina,
+            Mascotas = dto.Mascotas,
+            UrlImagen = urlImagen,
+            Estado = false // Pendiente de habilitacion
+          };
+
+          //Usar el Repositorio (solo agrega al contexto)
+          var creado = _repo.CrearInmueble(inmuebleNuevo);
+
+          //Guardado Final
+          _context.SaveChanges(); // Guarda el inmueble nuevo
+
+          //Confirmar Transaccion
+          transaction.Commit();
+
+          //Cargar datos relacionados para la respuesta
+          creado.Tipo = _context.Tipos.Find(creado.IdTipo);
+          creado.Direccion = direccionParaInmueble;
+
+          //Respuesta Exitosa
+          // Devolvemos 201 Created con la ubicacion del nuevo recurso
+          return Created($"api/Inmuebles/{creado.IdInmueble}", new
+          {
+            mensaje = "Inmueble creado correctamente (pendiente de habilitacion)",
+            inmueble = creado
+          });
+        }
+        catch (Exception ex)
         {
-          mensaje = "Ya existe un inmueble con caracteristicas identicas (misma direccion, tipo, metros y ambientes) para este propietario.",
-          idInmuebleExistente = inmuebleDuplicado.IdInmueble
-        });
+          // Si algo falla (guardar imagen, BD, etc.), deshacemos todo
+          transaction.Rollback();
+          // Error (ex)
+          return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+        }
       }
-
-      //Creamos el inmueble  
-      // Guardar imagen en wwwroot/imagenes_inmuebles
-      string carpeta = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "imagenes_inmuebles");
-      if (!Directory.Exists(carpeta))
-        Directory.CreateDirectory(carpeta);
-
-      string nombreArchivo = $"{Guid.NewGuid()}_{carga.Imagen.FileName}";
-      string rutaArchivo = Path.Combine(carpeta, nombreArchivo);
-
-      using (var stream = new FileStream(rutaArchivo, FileMode.Create))
-      {
-        carga.Imagen.CopyTo(stream);
-      }
-
-      //Ruta publica (para android)
-      string urlImagen = $"{Request.Scheme}://{Request.Host}/imagenes_inmuebles/{nombreArchivo}";
-
-      // Crear el inmueble
-      var inmuebleNuevo = new Inmueble
-      {
-        IdPropietario = idPropietario,
-        IdDireccion = direccionParaInmueble.IdDireccion,
-        IdTipo = dto.IdTipo,
-        Metros2 = dto.Metros2,
-        CantidadAmbientes = dto.CantidadAmbientes,
-        Precio = dto.Precio,
-        Descripcion = dto.Descripcion,
-        Cochera = dto.Cochera,
-        Piscina = dto.Piscina,
-        Mascotas = dto.Mascotas,
-        UrlImagen = urlImagen,
-        Estado = false //eshabilitado por defecto
-      };
-
-      var creado = _repo.CrearInmueble(inmuebleNuevo);
-
-      if (creado == null)
-        return StatusCode(500, "Error al crear el inmueble");
-
-      creado.Tipo = _context.Tipos.Find(creado.IdTipo);
-      creado.Direccion = direccionParaInmueble;
-      return Ok(new
-      {
-        mensaje = "Inmueble creado correctamente (pendiente de habilitacion)",
-        inmueble = creado
-      });
     }
+
+
+
+
 
 
 

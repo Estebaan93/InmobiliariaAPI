@@ -13,12 +13,27 @@ namespace InmobiliariaAPI.Repositories
       _context = context;
     }
 
-    public IEnumerable<Pago> ObtenerPorContrato(int idContrato)
+    public IEnumerable<Pago> ObtenerPorContrato(int idContrato, int idPropietario)
     {
+      // Validar que el contrato existe y pertenece al propietario
+      var contrato = _context.Contratos
+          .Include(c => c.Inmueble)  // Necesitamos el inmueble para validar el propietario
+          .AsNoTracking()
+          .FirstOrDefault(c => c.IdContrato == idContrato 
+                             && c.Inmueble.IdPropietario == idPropietario);
+
+      // Si no existe o no pertenece al propietario, retornar lista vacia
+      if (contrato == null)
+      {
+        return new List<Pago>();
+      }
+
+      // Solo si el contrato pertenece al propietario, retornar sus pagos
       return _context.Pagos
-        .Where(p => p.IdContrato == idContrato)
-        .AsNoTracking()
-        .ToList();
+          .Where(p => p.IdContrato == idContrato)
+          .OrderBy(p => p.FechaPago)
+          .AsNoTracking()
+          .ToList();
     }
   }
 }
