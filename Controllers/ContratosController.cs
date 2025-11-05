@@ -11,7 +11,7 @@ namespace InmobiliariaAPI.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  [Authorize] // Requiere autenticación en todos los metodos
+  [Authorize] // Requiere autenticacion en todos los metodos
   public class ContratosController : ControllerBase
   {
     private readonly IContratoRepositorio _contratoRepo;

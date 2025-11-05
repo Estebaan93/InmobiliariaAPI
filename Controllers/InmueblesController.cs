@@ -94,7 +94,8 @@ namespace InmobiliariaAPI.Controllers
       // Usamos DataAnnotations manualmente ya que el DTO viene como string
       var validationContext = new ValidationContext(dto, null, null);
       var validationResults = new List<ValidationResult>();
-      bool isValid = Validator.TryValidateObject(dto, validationContext, validationResults, true);
+      //True me valida todas las propiedades, si fuera False solo me valida las Requerid
+      bool isValid = Validator.TryValidateObject(dto, validationContext, validationResults, true); 
 
       if (!isValid)
       {
@@ -102,7 +103,7 @@ namespace InmobiliariaAPI.Controllers
         return BadRequest(validationResults.First().ErrorMessage);
       }
 
-      // Iniciar Transaccion Atomica
+      // Iniciar transaccion atomica
       using (var transaction = _context.Database.BeginTransaction())
       {
         try
