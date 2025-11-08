@@ -12,6 +12,7 @@ namespace InmobiliariaAPI.Repositories
     Inmueble? CrearInmueble(Inmueble inmueble);
     bool CambiarEstado(int idInmueble, int idPropietario, bool nuevoEstado);
 
+    Inmueble? ObtenerPorId(int idInmueble, int idPropietario);
 
 
   }

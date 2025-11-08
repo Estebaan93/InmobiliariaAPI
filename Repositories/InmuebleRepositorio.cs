@@ -21,8 +21,9 @@ namespace InmobiliariaAPI.Repositories
       return _context.Inmuebles
         .Include(i => i.Direccion)
         .Include(i => i.Tipo)
+        .Include(i=>i.Propietario)
         .Where(i => i.IdPropietario == idPropietario)
-        .OrderByDescending(i=>i.IdInmueble)
+        .OrderByDescending(i => i.IdInmueble)
         .AsNoTracking()
         .ToList();
     }
@@ -80,29 +81,39 @@ namespace InmobiliariaAPI.Repositories
       _context.Inmuebles.Add(inmueble);
       return inmueble;
     }
-    
 
-  public bool CambiarEstado(int idInmueble, int idPropietario, bool nuevoEstado)
-{
-    var inmueble = _context.Inmuebles
-        .FirstOrDefault(i => i.IdInmueble == idInmueble && i.IdPropietario == idPropietario);
 
-    if (inmueble == null)
+    public bool CambiarEstado(int idInmueble, int idPropietario, bool nuevoEstado)
+    {
+      var inmueble = _context.Inmuebles
+          .FirstOrDefault(i => i.IdInmueble == idInmueble && i.IdPropietario == idPropietario);
+
+      if (inmueble == null)
         return false; // No existe o no pertenece al propietario
 
-    inmueble.Estado = nuevoEstado;
+      inmueble.Estado = nuevoEstado;
 
-    try
-    {
+      try
+      {
         _context.Inmuebles.Update(inmueble);
         _context.SaveChanges();
         return true;
-    }
-    catch (Exception)
-    {
+      }
+      catch (Exception)
+      {
         return false;
+      }
     }
-}
+
+    public Inmueble? ObtenerPorId(int idInmueble, int idPropietario)
+    {
+      return _context.Inmuebles
+            .Include(i => i.Tipo)
+            .Include(i => i.Direccion)
+            .Include(i=>i.Propietario)
+            .AsNoTracking()
+            .FirstOrDefault(i => i.IdInmueble == idInmueble && i.IdPropietario == idPropietario);
+    }
 
 
 

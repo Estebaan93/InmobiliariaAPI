@@ -115,6 +115,7 @@ namespace InmobiliariaAPI.Controllers
           string cpTrim = dto.Cp.Trim();
           string ciudadTrim = dto.Ciudad.Trim();
 
+          //Busca si existe una direccion igual
           var direccionExistente = _context.Direcciones.FirstOrDefault(d =>
               d.Calle == calleTrim &&
               d.Altura == dto.Altura &&
@@ -146,7 +147,7 @@ namespace InmobiliariaAPI.Controllers
           //Chequeo de Duplicados (ahora con el IdDireccion correcto)
           var inmuebleDuplicado = _context.Inmuebles.FirstOrDefault(i =>
               i.IdPropietario == idPropietario &&
-              i.IdDireccion == direccionParaInmueble.IdDireccion && // <-- ID ya está disponible
+              i.IdDireccion == direccionParaInmueble.IdDireccion && // <-- Id ya est disponible
               i.IdTipo == dto.IdTipo &&
               i.Metros2 == dto.Metros2 &&
               i.CantidadAmbientes == dto.CantidadAmbientes
@@ -254,6 +255,23 @@ namespace InmobiliariaAPI.Controllers
         idInmueble = dto.IdInmueble,
         nuevoEstado = dto.Estado
       });
+
+    }
+
+    //GET: api/Inmueble/{id}
+    [HttpGet ("{id}")]
+    public IActionResult GetInmueble(int id)
+    {
+      var idPropietario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+      var inmueble = _repo.ObtenerPorId(id, idPropietario);
+
+      if (inmueble == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(inmueble);
 
     }
 
