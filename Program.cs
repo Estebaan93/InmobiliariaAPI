@@ -79,7 +79,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         if (DateTime.TryParse(lastChangeClaim, out var tokenIssuedTime))
         {
           var user = await db.Propietarios.FindAsync(userId);
-          // Si el usuario cambió la contraseña después de emitirse el token → invalida
+          // Si el usuario cambio la contraseña despues de emitirse el token - invalida
           if (user != null && user.UltimoCambioPassword > tokenIssuedTime)
           {
             context.Fail("Token expirado por cambio de contraseña.");
@@ -88,7 +88,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       }
       catch
       {
-        // Si algo falla en la validación personalizada, también invalida por seguridad
+        // Si algo falla en la validacion personalizada, tambien invalida por seguridad
         context.Fail("Error al validar el token.");
       }
     }

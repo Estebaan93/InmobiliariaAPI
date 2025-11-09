@@ -71,10 +71,6 @@ namespace InmobiliariaAPI.Controllers
       if (carga.Imagen == null || carga.Imagen.Length == 0)
         return BadRequest("La imagen es requerida");
 
-      // Validar que se envio el JSON del inmueble
-      if (string.IsNullOrWhiteSpace(carga.Inmueble))
-        return BadRequest("Los datos del inmueble son requeridos");
-
       // Deserializar el JSON a InmuebleJsonDTO
       InmuebleJsonDTO dto;
       try
@@ -95,9 +91,9 @@ namespace InmobiliariaAPI.Controllers
       var validationContext = new ValidationContext(dto, null, null);
       var validationResults = new List<ValidationResult>();
       //True me valida todas las propiedades, si fuera False solo me valida las Requerid
-      bool isValid = Validator.TryValidateObject(dto, validationContext, validationResults, true); 
+      bool esValido = Validator.TryValidateObject(dto, validationContext, validationResults, true); 
 
-      if (!isValid)
+      if (!esValido)
       {
         // Devuelve el primer error de validacion encontrado
         return BadRequest(validationResults.First().ErrorMessage);
@@ -143,6 +139,7 @@ namespace InmobiliariaAPI.Controllers
             _context.SaveChanges();
             direccionParaInmueble = nuevaDireccion;
           }
+          string descripcionTrim = dto.Descripcion.Trim();
 
           //Chequeo de Duplicados (ahora con el IdDireccion correcto)
           var inmuebleDuplicado = _context.Inmuebles.FirstOrDefault(i =>
@@ -150,7 +147,8 @@ namespace InmobiliariaAPI.Controllers
               i.IdDireccion == direccionParaInmueble.IdDireccion && // <-- Id ya est disponible
               i.IdTipo == dto.IdTipo &&
               i.Metros2 == dto.Metros2 &&
-              i.CantidadAmbientes == dto.CantidadAmbientes
+              i.CantidadAmbientes == dto.CantidadAmbientes &&
+              i.Descripcion == descripcionTrim
           );
 
           if (inmuebleDuplicado != null)
